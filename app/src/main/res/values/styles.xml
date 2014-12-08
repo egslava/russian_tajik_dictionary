@@ -3,6 +3,10 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="colorPrimary">#AA0000</item>
+        <!--<item name="navigationBarColor">#AA0000</item>-->
+        <item name="colorPrimaryDark">#880000</item>
+        <item name="colorAccent">#FF3333</item>
     </style>
 
 </resources>

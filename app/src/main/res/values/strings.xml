@@ -2,8 +2,13 @@
 <resources>
 
     <string name="app_name">Dictionary</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="type_here_to_filter">Type here to filter</string>
+    <string-array name="dicts">
+        <item>Russian-Tajik</item>
+        <item>Tajik-Russian</item>
+    </string-array>
+
+    <string name="please_wait">Please wait</string>
+    <string name="first_time_load">Dictionaries are needed time to load for the first time.</string>
 
 </resources>

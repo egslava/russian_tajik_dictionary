@@ -1,83 +1,102 @@
 package ru.egslava.dictionary;
 
+import android.app.AlertDialog;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBarActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 
-import com.getbase.android.db.loaders.CursorLoaderBuilder;
-import com.getbase.android.db.provider.ProviderAction;
-
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.FragmentArg;
+import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsMenu;
-import org.androidannotations.annotations.RootContext;
+import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.ViewById;
-
-import static android.provider.ContactsContract.*;
-import static android.provider.ContactsContract.Contacts.*;
+import org.apache.commons.lang3.StringUtils;
 
 
 @EFragment(R.layout.fragment_word_list)
 @OptionsMenu(R.menu.main)
-public class DictionaryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, FilterQueryProvider, TextWatcher {
+public class DictionaryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        FilterQueryProvider, SearchView.OnQueryTextListener, AdapterView.OnItemClickListener {
 
     public static final int URL_LOADER = 0;
+
+    @OptionsMenuItem(R.id.search)
+    MenuItem searchItem;
+
+    @FragmentArg
+    String tableName;
 
     @ViewById
     ListView                        list;
 
-    private Loader<Cursor>          specsLoader;
     private SimpleCursorAdapter     adapter;
     private Cursor cursor;
 
-    @ViewById
-    EditText filter;
-
-    @Override
-    public String toString() {
-        return  "123";
-//        return super.toString();
-    }
+    MainActivity ac;
+    private SQLiteDatabase db;
+    private SearchView actionSearch;
+    private Uri uri;
 
     @AfterViews
     void init(){
+        uri = Uri.parse("content://" + tableName);
+
+        ac = (MainActivity)getActivity();
+        db = ac.db().getReadableDatabase();
+
         adapter = new SimpleCursorAdapter(getActivity(),
-                android.R.layout.simple_list_item_1, null,
-                new String[]{DISPLAY_NAME},
-                new int[]{android.R.id.text1}, 0);
+                R.layout.item_word, null,
+                new String[]{"word", "definition"},
+                new int[]{android.R.id.text1, android.R.id.text2}, 0);
 
         list.setTextFilterEnabled(true);
         adapter.setFilterQueryProvider(this);
         list.setAdapter(adapter);
+        list.setOnItemClickListener(this);
 
-        specsLoader = getLoaderManager().initLoader(URL_LOADER, null, this);
-        filter.addTextChangedListener(this);
+        getLoaderManager().initLoader(URL_LOADER, null, this);
     }
+
+//    @ItemClick
+//    void list
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        actionSearch = (SearchView) MenuItemCompat.getActionView(searchItem);
+        actionSearch.setOnQueryTextListener(this);
+    }
+
+    @OptionsMenuItem
+    MenuItem search;
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
         switch(loaderId){
             case URL_LOADER:
 
-                CursorLoaderBuilder builder = CursorLoaderBuilder.forUri(CONTENT_URI);
-
-                if (bundle != null && !bundle.getString("filter").isEmpty()){
-                    builder.where(DISPLAY_NAME + " LIKE ?", "%" + bundle.getString("filter") + "%");
+                if (bundle != null && StringUtils.isNotBlank(bundle.getString("filter"))){
+                    return new DictionaryCursorLoader(ac, uri, null, "word LIKE(?)", new String[]{bundle.getString("filter") + "%"}, null);
+                }else{
+                    return new DictionaryCursorLoader(ac, uri, null, null, null, null);
                 }
-
-                return builder.build(getActivity());
             default:
                 return null;
         }
@@ -90,7 +109,7 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
             return;
         }else{
             this.cursor = cursor;
-            list.setFilterText(filter.getText().toString());
+            list.setFilterText(actionSearch.getQuery().toString());
         }
     }
 
@@ -99,12 +118,26 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
 
     @Override public Cursor runQuery(CharSequence constraint) { return cursor; }
 
+    @Override
+    public boolean onQueryTextSubmit(String query) { return false; }
 
-    @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+    @Override
+    public boolean onQueryTextChange(String newText) {
         Bundle params = new Bundle();
-        params.putString("filter", s.toString());
+        params.putString("filter", newText);
         getLoaderManager().restartLoader(URL_LOADER, params, this);
+        return true;
     }
-    @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-    @Override public void afterTextChanged(Editable s) {}
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor item = (Cursor)adapter.getItem(position);
+        String word = item.getString(item.getColumnIndex("word"));
+        String definition = item.getString(item.getColumnIndex("definition"));
+        new AlertDialog.Builder(getActivity())
+                .setTitle(word)
+                .setMessage(definition)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
 }

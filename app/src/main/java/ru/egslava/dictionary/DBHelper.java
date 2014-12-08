@@ -10,33 +10,59 @@ import android.database.sqlite.SQLiteQuery;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Created by egslava on 29/11/14.
  */
 public class DBHelper extends SQLiteOpenHelper {
 
+    public static String createTable(String tableName) {
+        return String.format(
+                "CREATE TABLE %s ( `_id` INTEGER, `word` CHAR(255), `definition` TEXT, PRIMARY KEY(_id) );",
+                tableName);
+    }
+
+    public static String insertWord(String tableName) {
+        return String.format( "INSERT INTO %s (word,definition) VALUES (?, ?)",
+                tableName);
+    }
+
+
     private final Context context;
 
-    public DBHelper(Context context, SQLiteDatabase.CursorFactory factory) {
-        super(context, "db", factory, 1);
+    public DBHelper(Context context) {
+        super(context, "db", null, 1);
         this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        fillWords(db, "rus_taj", R.raw.rus_taj);
+        fillWords(db, "taj_rus", R.raw.taj_rus);
+
+    }
+
+    private void fillWords(SQLiteDatabase db, String tableName, int wordFileResId) {
         try {
-            String query = IOUtils.toString(context.getResources().openRawResource(R.raw.sqlite_work_types));
-            String[] query_parts = StringUtils.split(query, ';');
-            for(String querie: query_parts){
-                getReadableDatabase().execSQL(querie);
+            db.execSQL( createTable(tableName));
+
+            InputStream inputStream = context.getResources().openRawResource( wordFileResId );
+            InputStreamReader reader = new InputStreamReader(inputStream);
+            BufferedReader buf = new BufferedReader(reader);
+
+            String s;
+            while( buf.ready() ){
+                s = buf.readLine();
+                db.execSQL(insertWord( tableName), StringUtils.split(s, '%'));
             }
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override

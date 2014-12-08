@@ -2,8 +2,14 @@
 <resources>
 
     <string name="app_name">Словарь</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="type_here_to_filter">Введите здесь фильтр</string>
+    <string-array name="dicts">
+        <item>русско-таджикский</item>
+        <item>таджикско-русский</item>
+    </string-array>
+
+
+    <string name="please_wait">Подождите...</string>
+    <string name="first_time_load">При первом запуске нужно немного времени, чтобы прогрузить словари.</string>
 
 </resources>
