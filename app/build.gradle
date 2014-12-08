@@ -24,7 +24,26 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+
+    Properties p = new Properties()
+    p.load(new FileInputStream("gradle.properties"))
+
+    signingConfigs {
+        release {
+            storeFile file("egslava.keystore")
+            storePassword p.keyAliasPassword;
+            keyAlias    p.keyAlias
+            keyPassword p.keyStorePassword
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
 }
+
 
 apt {
     arguments {
