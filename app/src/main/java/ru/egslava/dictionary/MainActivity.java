@@ -73,8 +73,13 @@ public class MainActivity extends ActionBarActivity {
             @Override public int getCount() { return 2; }
             @Override public Fragment getItem(int i) {
                 switch(i){
-                    case 0: return DictionaryFragment_.builder().tableName("rus_taj").build();
-                    case 1: return DictionaryFragment_.builder().tableName("taj_rus").build();
+                    case 0: return DictionaryFragment_.builder()
+                            .tableName("rus_taj")
+                            .build();
+                    case 1: return DictionaryFragment_.builder()
+                            .tableName("taj_rus")
+                            .letters(new String[]{ "ҳ", "ӯ", "қ", "ҷ", "ғ", "ӣ"})
+                            .build();
                 }
                 return null;
             }

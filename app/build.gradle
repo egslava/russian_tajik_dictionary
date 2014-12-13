@@ -10,8 +10,8 @@ android {
         applicationId "ru.egslava.dictionary"
         minSdkVersion 9
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "1.5"
     }
     buildTypes {
         release {
@@ -30,7 +30,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("egslava.keystore")
+            storeFile file("kalid2.keystore")
             storePassword p.keyAliasPassword;
             keyAlias    p.keyAlias
             keyPassword p.keyStorePassword

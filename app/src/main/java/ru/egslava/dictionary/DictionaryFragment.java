@@ -8,23 +8,29 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.MenuCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
-import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,8 +48,14 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
     @FragmentArg
     String tableName;
 
+    @FragmentArg
+    String[] letters;
+
     @ViewById
     ListView                        list;
+
+    @SystemService
+    LayoutInflater  inflater;
 
     private SimpleCursorAdapter     adapter;
     private Cursor cursor;
@@ -52,6 +64,22 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
     private SQLiteDatabase db;
     private SearchView actionSearch;
     private Uri uri;
+
+    @ViewById(R.id.letters)
+    ViewGroup lettersLayout;
+    private View.OnClickListener letterInserter = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (actionSearchEditText == null) return;   //is not inflated yet
+            Button button = (Button) v;
+            if (actionSearch.isIconified()){
+                MenuItemCompat.expandActionView(searchItem);
+            }
+            actionSearchEditText.getText().insert(actionSearchEditText.getSelectionStart(), ((Button) v).getText());
+        }
+    };
+
+    private EditText actionSearchEditText;
 
     @AfterViews
     void init(){
@@ -70,11 +98,20 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
         list.setAdapter(adapter);
         list.setOnItemClickListener(this);
 
+        // Sets up lettersLayout
+        lettersLayout.setVisibility(letters == null ? View.GONE : View.VISIBLE);
+        if(letters != null)
+        for(String letter: letters){
+
+            Button letterButton = (Button)inflater.inflate(R.layout.view_button_letter, lettersLayout, false);
+            letterButton.setText(letter);
+            letterButton.setOnClickListener(letterInserter);
+            lettersLayout.addView(letterButton);
+        }
+
         getLoaderManager().initLoader(URL_LOADER, null, this);
     }
 
-//    @ItemClick
-//    void list
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -82,6 +119,8 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
 
         actionSearch = (SearchView) MenuItemCompat.getActionView(searchItem);
         actionSearch.setOnQueryTextListener(this);
+
+        actionSearchEditText = (EditText) actionSearch.findViewById(android.support.v7.appcompat.R.id.search_src_text);
     }
 
     @OptionsMenuItem
