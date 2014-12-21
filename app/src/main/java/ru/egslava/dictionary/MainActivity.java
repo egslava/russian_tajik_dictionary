@@ -18,9 +18,12 @@ import android.text.TextWatcher;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
@@ -36,6 +39,12 @@ public class MainActivity extends ActionBarActivity {
 
     @ViewById
     PagerSlidingTabStrip    tabs;
+
+    @ViewById
+    FrameLayout ad;
+
+    @ViewById
+    AdView  adView;
 
     @ViewById
     ViewPager               pager;
@@ -62,6 +71,7 @@ public class MainActivity extends ActionBarActivity {
     @AfterViews
     void init(){
         progressDialog = ProgressDialog.show(this, please_wait, first_time_load, true, false);
+        adView.loadAd(new AdRequest.Builder().build());
         loadDb();
     }
 

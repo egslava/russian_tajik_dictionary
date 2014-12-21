@@ -10,8 +10,8 @@ android {
         applicationId "ru.egslava.dictionary"
         minSdkVersion 9
         targetSdkVersion 21
-        versionCode 5
-        versionName "1.5"
+        versionCode 6
+        versionName "1.6"
     }
     buildTypes {
         release {
@@ -65,8 +65,16 @@ apt {
 
 dependencies {
 
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+//    compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:21.+'
+
+//    compile ('com.google.apis:google-api-services-analytics:+'){
+//        exclude(group: 'com.google.guava', module: 'guava-jdk5')
+//    }
+
+//    compile 'com.google.android.gms:play-services:6.5.+'
+    compile 'com.google.android.gms:play-services-base:6.5.+'
+    compile 'com.google.android.gms:play-services-ads:6.5.+'
 
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'commons-io:commons-io:2.4'

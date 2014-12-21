@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Словарь</string>
+    <string name="app_name">Русско-таджикский словарь</string>
     <string name="type_here_to_filter">Введите здесь фильтр</string>
     <string-array name="dicts">
         <item>русско-таджикский</item>

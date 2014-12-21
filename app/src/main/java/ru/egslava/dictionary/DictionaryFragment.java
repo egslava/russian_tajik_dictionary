@@ -25,6 +25,8 @@ import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 
+import com.google.android.gms.analytics.HitBuilders;
+
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.FragmentArg;
@@ -173,6 +175,10 @@ public class DictionaryFragment extends Fragment implements LoaderManager.Loader
         Cursor item = (Cursor)adapter.getItem(position);
         String word = item.getString(item.getColumnIndex("word"));
         String definition = item.getString(item.getColumnIndex("definition"));
+        ((MainApplication)getActivity().getApplication()).getTracker().send(new HitBuilders.EventBuilder()
+                .setCategory("translation")
+                .setAction(tableName)
+                .setLabel(word).build());
         new AlertDialog.Builder(getActivity())
                 .setTitle(word)
                 .setMessage(definition)
